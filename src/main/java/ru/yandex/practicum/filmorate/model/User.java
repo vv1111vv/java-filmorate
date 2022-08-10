@@ -1,10 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
+import lombok.*;
+
 import java.time.LocalDate;
 
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class User {
     private long id; // целочисленный идентификатор — id;
     private String email; //  электронная почта не может быть пустой и должна содержать символ @;

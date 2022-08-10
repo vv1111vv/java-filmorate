@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundObjectException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -22,12 +24,19 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     //Создать пользователя
     @PostMapping
     public User create(@RequestBody User user) {
         validateUser(user);
         log.info("Запрос на добавление пользователя " + user.getName() + " id " + user.getId() + " получен");
-        return create(user);
+        return userService.create(user);
     }
 
     //Обновить пользователя
@@ -35,18 +44,18 @@ public class UserController {
     public User update(@Valid @RequestBody User user) {
         log.info("Запрос на обновление пользователя " + user.getName() + " id " + user.getId() + " получен");
         long userId = user.getId();
-        if (userId < 0) {
+        if (userId < 0 && !userService.getAllUsers().contains(user)) {
             throw new NotFoundObjectException("Пользователя с id " + user.getId() + " нет");
         }
         validateUser(user);
-        return update(user);
+        return userService.update(user);
     }
 
     //полученить список всех пользователей
     @GetMapping
     public ArrayList<User> getAllUsers() {
         log.info("Получен запрос на получение всех пользователей");
-        return getAllUsers();
+        return userService.getAllUsers();
     }
 
     public void validateUser(User user) {

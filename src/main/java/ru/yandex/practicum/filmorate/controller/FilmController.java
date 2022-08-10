@@ -1,16 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 /*
 Класс контроллер описывает эндпоинты для класса Film:
@@ -22,17 +23,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    private final FilmService filmService;
+    private final UserService userService;
+
+    @Autowired
+    public FilmController(FilmService filmService, UserService userService) {
+        this.filmService = filmService;
+        this.userService = userService;
+    }
     public void validateFilm(Film film) {  // дата релиза — не раньше 28 декабря 1895 года;
         if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
     }
     //добавление фильма;
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Фильм: " + film.getName() + " создан с id: " + film.getId());
         validateFilm(film);
-        return create(film);
+        return filmService.create(film);
     }
 
     // обновление фильма
@@ -40,14 +50,14 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         log.info("Получен запрос на обновление фильма: " + film.getName() + " с id: " + film.getId());
         validateFilm(film);
-        return update(film);
+        return filmService.update(film);
     }
 
     // Получение всех фильмов
     @GetMapping
     public ArrayList getFilms() {
         log.info("Получен запрос на получение списка всех фильмов");
-        return getFilms();
+        return filmService.getFilms();
     }
 
 }
