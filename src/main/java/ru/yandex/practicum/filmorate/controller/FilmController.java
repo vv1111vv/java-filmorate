@@ -25,17 +25,14 @@ import java.util.ArrayList;
 public class FilmController {
     private final FilmService filmService;
     private final UserService userService;
+    private static final LocalDate LOCAL_DATE = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmController(FilmService filmService, UserService userService) {
         this.filmService = filmService;
         this.userService = userService;
     }
-    public void validateFilm(Film film) {  // дата релиза — не раньше 28 декабря 1895 года;
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
-        }
-    }
+
     //добавление фильма;
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -59,6 +56,10 @@ public class FilmController {
         log.info("Получен запрос на получение списка всех фильмов");
         return filmService.getFilms();
     }
-
+    private void validateFilm(Film film) {  // дата релиза — не раньше 28 декабря 1895 года;
+        if(film.getReleaseDate().isBefore(LOCAL_DATE)) {
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+        }
+    }
 }
 
