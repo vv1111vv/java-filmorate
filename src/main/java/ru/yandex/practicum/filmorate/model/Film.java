@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 
@@ -19,6 +20,7 @@ public class Film {
     private String name;   //название не может быть пустым;
     @Length(max = 200)
     private String description;   //максимальная длина описания — 200 символов;
+    @NotNull
     private LocalDate releaseDate;   // дата релиза — не раньше 28 декабря 1895 года;
     @Positive
     private int duration;   //  продолжительность фильма должна быть положительной.

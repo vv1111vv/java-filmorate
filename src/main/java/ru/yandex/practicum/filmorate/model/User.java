@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 public class User {
-    @NotNull
     private long id; // целочисленный идентификатор — id;
     @NotNull
     @Email
