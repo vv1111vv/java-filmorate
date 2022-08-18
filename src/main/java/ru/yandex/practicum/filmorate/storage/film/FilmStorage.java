@@ -10,6 +10,7 @@ import java.util.ArrayList;
 - создать фильм
 - обновить фильм
 - получить список фильмов
+- получить фильм по id
  */
 
 @Component
@@ -22,4 +23,7 @@ public interface FilmStorage {
 
     //получить список фильмов
     ArrayList<Film> getFilms();
+
+    //получить фильм по id
+    public Film getFilmById(long id);
 }

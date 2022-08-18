@@ -9,6 +9,7 @@ import java.util.ArrayList;
 - создать пользователя
 - обновить пользователя
 - получить список пользователей
+- получить пользователя по id
  */
 
 @Component
@@ -21,5 +22,8 @@ public interface UserStorage {
 
     //получить список всех пользователей
     public ArrayList<User> getAllUsers();
+
+    //получить пользователя по id
+    public User getUserById(long id);
 
 }

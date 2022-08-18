@@ -34,4 +34,13 @@ public class InMemoryUserStorage implements UserStorage {
     public ArrayList<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
+
+    @Override
+    public User getUserById(long id) {
+        if (users.containsKey(id)) {
+            return users.get(id);
+        } else {
+            throw new NotFoundObjectException("Пользователя с таким id нет в списке");
+        }
+    }
 }
