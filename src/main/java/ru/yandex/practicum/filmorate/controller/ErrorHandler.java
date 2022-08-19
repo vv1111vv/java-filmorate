@@ -10,12 +10,13 @@ import ru.yandex.practicum.filmorate.exception.NotFoundObjectException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 
+import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
 /*
 Класс содержит методы обработки исключений
  */
-@RestControllerAdvice(assignableTypes = {FilmController.class, UserController.class})
+@RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
     @ExceptionHandler
@@ -40,5 +41,17 @@ public class ErrorHandler {
         return new ResponseEntity<>(
                 Map.of("Внимание ", a.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> exc(ConstraintViolationException ex){
+        log.info(ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<String> handleThrowable(final Throwable ex) {
+        log.info(ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

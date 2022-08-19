@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
@@ -22,18 +24,18 @@ import java.util.Set;
  - добавить/удалить likes
  - получить список Топ-10 фильмов
  */
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
-    private final UserService userService;
+
     private static final LocalDate LOCAL_DATE = LocalDate.of(1895, 12, 28);
 
     @Autowired
-    public FilmController(FilmService filmService, UserService userService) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
-        this.userService = userService;
     }
 
     //добавление фильма;
@@ -83,7 +85,7 @@ public class FilmController {
 
     //получить список из 10-Топ фильмов
     @GetMapping("/popular")
-    public Set<Film> topFilm(@RequestParam(defaultValue = "10") int count) {
+    public Set<Film> topFilm(@Positive @RequestParam(defaultValue = "10") int count) {
         log.info("Получен запрос на список популярных фильмов");
         return filmService.topFilm(count);
     }

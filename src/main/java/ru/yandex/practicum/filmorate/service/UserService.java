@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 добавление в друзья, удаление из друзей, вывод списка общих друзей
@@ -68,9 +69,10 @@ public class UserService {
     //получить список друзей пользователя
     public List<User> userfriends(long id) {
         User user = getUserById(id);
-        List<User> userFriends = new ArrayList<>();
-        user.getFriends().stream().forEach(e -> userFriends.add(getUserById(e)));
-        return userFriends;
+//        List<User> userFriends = new ArrayList<>();
+//        user.getFriends().stream().forEach(e -> userFriends.add(getUserById(e)));
+//        return userFriends;
+        return user.getFriends().stream().map(userStorage::getUserById).collect(Collectors.toList());
     }
 
     //получить список общих друзей пользователя
@@ -79,11 +81,13 @@ public class UserService {
         User otherUser = userStorage.getUserById(idOther);
         Set<Long> userFriends = user.getFriends();
         Set<Long> otherFriends = otherUser.getFriends();
-        List<User> commonUserFriends = new ArrayList<>();
-        userFriends.stream()
-                .filter(otherFriends::contains)
-                .forEach(e -> commonUserFriends.add(getUserById(e)));
-        return commonUserFriends;
+//        List<User> commonUserFriends = new ArrayList<>();
+//        userFriends.stream()
+//                .filter(otherFriends::contains)
+//                .forEach(e -> commonUserFriends.add(getUserById(e)));
+//        return commonUserFriends;
+        return userFriends.stream()
+                .filter(otherFriends::contains).map(userStorage::getUserById).collect(Collectors.toList());
     }
 }
 

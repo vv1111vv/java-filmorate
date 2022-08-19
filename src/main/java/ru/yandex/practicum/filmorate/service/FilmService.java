@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Класс отвечает за операции с фильмами, — добавление и удаление лайка, вывод 10 наиболее популярных
@@ -51,8 +52,7 @@ public class FilmService {
 
     //получить фильм по id
     public Film getFilmById(long id) {
-        Film film = filmStorage.getFilmById(id);
-        return film;
+        return filmStorage.getFilmById(id);
     }
 
     //добавить like
@@ -74,14 +74,10 @@ public class FilmService {
     //получить список Топ-10 фильмов
     public Set<Film> topFilm(int count) {
         ArrayList<Film> films = filmStorage.getFilms();
-        Set<Film> collect = new HashSet<>();
-
-        films.stream()
+        return films.stream()
                 .sorted(Comparator.comparingInt(Film::getCountLike).reversed())
                 .limit(count)
-                .forEach(collect::add);
-
-        return collect;
+                .collect(Collectors.toSet());
     }
 }
 
