@@ -1,83 +1,75 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.storage.database.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.database.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.database.LikeStorage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
-/*
-Класс отвечает за операции с фильмами, — добавление и удаление лайка, вывод 10 наиболее популярных
-фильмов по количеству лайков.
- */
 @Service
 @Slf4j
-@NoArgsConstructor
 public class FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
-    private long idgenerator;
+    private final FilmDbStorage filmStorage;
+    private final UserService userService;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    FilmService(FilmDbStorage FilmDbStorage, LikeDbStorage databaseLikeStorage,
+                UserService userService) {
+        this.filmStorage = FilmDbStorage;
+        this.userService = userService;
+        this.likeStorage = databaseLikeStorage;
     }
 
-    //создать фильм
-    public Film create(Film film) {
-        ++idgenerator;
-        film.setId(idgenerator);
-        return filmStorage.create(film);
+    public void saveLike(Long filmId, Long userId) {
+
+        likeStorage.saveLike(Like
+                .builder()
+                .film(filmStorage.getById(filmId))
+                .user(userService.getById(userId))
+                .build());
     }
 
-    //обновленить фильм;
-    public Film update(Film film) {
-        return filmStorage.update(film);
+    public void deleteLike(Long filmId, Long userId) {
+
+        likeStorage.deleteLike(Like
+                .builder()
+                .film(filmStorage.getById(filmId))
+                .user(userService.getById(userId))
+                .build());
     }
 
-    //полученить список всех фильмов
-    public ArrayList<Film> getFilms() {
-        return filmStorage.getFilms();
+    public Collection<Film> getPopularFilms(Integer count) {
+        return likeStorage.getPopularFilms(count != null ? count : 10);
     }
 
-    //получить фильм по id
-    public Film getFilmById(long id) {
-        return filmStorage.getFilmById(id);
+    public Film createFilm(Film film) {
+        return filmStorage.createFilm(film);
     }
 
-    //добавить like
-    public void addLike(long filmId, long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-        film.getLikes().add(user.getId());
-        update(film);
+    public Collection<Film> getAll() {
+        return filmStorage.getAllFilms();
     }
 
-    //удалить like
-    public void deleteLike(long filmId, long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-        film.getLikes().remove(user.getId());
-        update(film);
+    public Film getById(Long id) {
+        Film film = filmStorage.getById(id);
+        return film;
     }
 
-    //получить список Топ-10 фильмов
-    public Set<Film> topFilm(int count) {
-        ArrayList<Film> films = filmStorage.getFilms();
-        return films.stream()
-                .sorted(Comparator.comparingInt(Film::getCountLike).reversed())
-                .limit(count)
-                .collect(Collectors.toSet());
+    public Film update(Film newFilm) {
+        final Film oldFilm = getById(newFilm.getId());
+        if (oldFilm.equals(newFilm)) return newFilm;
+        return filmStorage.update(newFilm);
     }
+
+    public void deleteFilm(Film film) {
+        filmStorage.deleteFilm(film);
+    }
+
 }
 

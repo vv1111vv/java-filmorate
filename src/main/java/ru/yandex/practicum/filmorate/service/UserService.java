@@ -1,93 +1,96 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.database.FriendshipStorage;
+import ru.yandex.practicum.filmorate.storage.database.UserDbStorage;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/*
-добавление в друзья, удаление из друзей, вывод списка общих друзей
- */
-
 @Service
 @Slf4j
-@NoArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
-    private long idgenerator;
+
+    private final FriendshipStorage friendshipStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserDbStorage userStorage, FriendshipStorage friends) {
+        this.friendshipStorage = friends;
         this.userStorage = userStorage;
     }
 
-    public User create(User user) {
-        ++idgenerator;
-        user.setId(idgenerator);
-        return userStorage.create(user);
+    public User getById(Long id) throws UserDoesNotExistByIdException {
+        return userStorage.getById(id);
     }
 
-    //обновить пользователя;
-    public User update(User user) {
+    public List<User> getUsers() {
+        return userStorage.getUsers();
+    }
 
+    public User createUser(User user) {
+        log.info("создан пользователь {}", user.getName());
+        return userStorage.createUser(user);
+    }
+
+    public User update(User user) {
+        log.info("обновлен пользователь {}", user.getName());
         return userStorage.update(user);
     }
 
-    //получить список всех пользователей
-    public ArrayList<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public void addFriend(Long id, Long friendId) throws UserDoesNotExistByIdException {
+        if (id < 1 || friendId < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
+        }
+        friendshipStorage.create(Friendship
+                .builder()
+                .user(getById(id))
+                .friend(getById(friendId))
+                .build());
     }
 
-    //получить пользователя по id
-    public User getUserById(long id) {
-        return userStorage.getUserById(id);
+
+    public void deleteFriend(Long id, Long friendId) {
+        if (id < 1 || friendId < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
+        }
+        friendshipStorage.delete(Friendship
+                .builder()
+                .user(getById(id))
+                .friend(getById(friendId))
+                .build());
     }
 
-    //добавить пользователя в друзья
-    public void addFriends(long userId, long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(userId);
+    public List<User> getFriendsOf(Long id) {
+        if (id < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
+        }
+        return friendshipStorage.getFriendsIds(getById(id).getId())
+                .stream()
+                .map(userStorage::getById)
+                .collect(Collectors.toList());
     }
 
-    //удалить пользователя из друзей
-    public void removeFriends(long userId, long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(userId);
-    }
 
-    //получить список друзей пользователя
-    public List<User> userfriends(long id) {
-        User user = getUserById(id);
-//        List<User> userFriends = new ArrayList<>();
-//        user.getFriends().stream().forEach(e -> userFriends.add(getUserById(e)));
-//        return userFriends;
-        return user.getFriends().stream().map(userStorage::getUserById).collect(Collectors.toList());
-    }
+    public List<User> getCommonFriends(Long id, Long otherId) throws UserDoesNotExistByIdException {
+        Set<Long> common = new HashSet<>(friendshipStorage.getFriendsIds(getById(id).getId()));
+        common.retainAll(friendshipStorage.getFriendsIds(otherId));
 
-    //получить список общих друзей пользователя
-    public List<User> commonFriends(long idUser, long idOther) {
-        User user = userStorage.getUserById(idUser);
-        User otherUser = userStorage.getUserById(idOther);
-        Set<Long> userFriends = user.getFriends();
-        Set<Long> otherFriends = otherUser.getFriends();
-//        List<User> commonUserFriends = new ArrayList<>();
-//        userFriends.stream()
-//                .filter(otherFriends::contains)
-//                .forEach(e -> commonUserFriends.add(getUserById(e)));
-//        return commonUserFriends;
-        return userFriends.stream()
-                .filter(otherFriends::contains).map(userStorage::getUserById).collect(Collectors.toList());
+        return common
+                .stream()
+                .map(userStorage::getById)
+                .collect(Collectors.toList());
     }
 }
 

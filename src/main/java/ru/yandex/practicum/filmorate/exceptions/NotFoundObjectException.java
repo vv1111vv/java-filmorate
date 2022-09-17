@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.exception;
+package ru.yandex.practicum.filmorate.exceptions;
 
 
 // TODO Класс передает сообщение для всех ситуаций, если искомый объект не найден;
