@@ -1,75 +1,52 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.AbstractDataStorage;
+import ru.yandex.practicum.filmorate.dao.AbstractFilmStorage;
+import ru.yandex.practicum.filmorate.dao.impl.FilmStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.storage.database.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.database.LikeDbStorage;
-import ru.yandex.practicum.filmorate.storage.database.LikeStorage;
 
-import java.util.Collection;
+import java.util.List;
 
-@Service
 @Slf4j
-public class FilmService {
-    private final FilmDbStorage filmStorage;
-    private final UserService userService;
-    private final LikeStorage likeStorage;
+@Service
+public class FilmService extends AbstractDataService<Film> {
+    private final AbstractFilmStorage filmStorage;
 
-    @Autowired
-    FilmService(FilmDbStorage FilmDbStorage, LikeDbStorage databaseLikeStorage,
-                UserService userService) {
-        this.filmStorage = FilmDbStorage;
-        this.userService = userService;
-        this.likeStorage = databaseLikeStorage;
+    public FilmService(AbstractDataStorage<Film> storage, FilmStorage filmStorage) {
+        super(storage);
+        this.filmStorage = filmStorage;
     }
 
-    public void saveLike(Long filmId, Long userId) {
-
-        likeStorage.saveLike(Like
-                .builder()
-                .film(filmStorage.getById(filmId))
-                .user(userService.getById(userId))
-                .build());
+    public void addLike(int id, int userId) {
+        try {
+            filmStorage.addLike(id, userId);
+        } catch (DataIntegrityViolationException e) {
+            log.warn(e.getMessage());
+            throw new NotFoundException(String.format("Ошибка добавления лайка, id=%d, userId=%d", id, userId));
+        }
     }
 
-    public void deleteLike(Long filmId, Long userId) {
-
-        likeStorage.deleteLike(Like
-                .builder()
-                .film(filmStorage.getById(filmId))
-                .user(userService.getById(userId))
-                .build());
+    public void removeLike(int id, int userId) {
+        try {
+            if (!filmStorage.removeLike(id, userId)) {
+                throw new NotFoundException(String.format("Ошибка удаления лайка, id=%d, userId=%d", id, userId));
+            }
+        } catch (DataIntegrityViolationException e) {
+            log.warn(e.getMessage());
+            throw new NotFoundException(String.format("Ошибка удаления лайка, id=%d, userId=%d", id, userId));
+        }
     }
 
-    public Collection<Film> getPopularFilms(Integer count) {
-        return likeStorage.getPopularFilms(count != null ? count : 10);
+    public List<Film> getPopularFilms(int count) {
+        try {
+            return filmStorage.getPopularFilms(count);
+        } catch (DataIntegrityViolationException e) {
+            log.warn(e.getMessage());
+            throw new NotFoundException(String.format("Ошибка получения %d популярных фильмов", count));
+        }
     }
-
-    public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
-    }
-
-    public Collection<Film> getAll() {
-        return filmStorage.getAllFilms();
-    }
-
-    public Film getById(Long id) {
-        Film film = filmStorage.getById(id);
-        return film;
-    }
-
-    public Film update(Film newFilm) {
-        final Film oldFilm = getById(newFilm.getId());
-        if (oldFilm.equals(newFilm)) return newFilm;
-        return filmStorage.update(newFilm);
-    }
-
-    public void deleteFilm(Film film) {
-        filmStorage.deleteFilm(film);
-    }
-
 }
-

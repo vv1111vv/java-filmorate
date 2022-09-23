@@ -1,44 +1,40 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.utils.IsAfter;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import ru.yandex.practicum.filmorate.model.validators.ReleaseDateConstraint;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-@Component
-@AllArgsConstructor
-@NoArgsConstructor
-public class Film {
-    private Long id;
-    @NotBlank
+@SuperBuilder
+@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Film extends AbstractData {
+
+    @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
-    @Size(max = 200, message = "допустимый размер описания: 200 символов")
+
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @IsAfter(current = "1895-12-28", message = "до 28 декабря 1895 года фильмов не существовало")
+
+    @ReleaseDateConstraint
     private LocalDate releaseDate;
-    @Min(0)
+
+    @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    @NonNull
+
     private MPARating mpa;
-    private Set<Genre> genres;
+    @JsonIgnore
+    private List<User> likes = new ArrayList<>();
 
-
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
+    private List<Genre> genres = new ArrayList<>();
 }

@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class Like {
-    @NonNull
-    private Film film;
-
+public class Friend {
     @NonNull
     private User user;
+
+    @NonNull
+    private User friend;
 }
