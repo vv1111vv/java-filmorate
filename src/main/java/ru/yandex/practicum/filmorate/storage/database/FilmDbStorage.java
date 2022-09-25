@@ -103,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        return jdbcTemplate.query("SELECT * FROM FILMS", this::mapToFilm);
+        return jdbcTemplate.query("select * from FILMS f, MPA m where f.MPA_ID = m.MPA_ID", this::mapToFilm);
     }
 
     public void deleteFilm(Film film) {
