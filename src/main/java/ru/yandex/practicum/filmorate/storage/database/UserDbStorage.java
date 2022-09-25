@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage.database;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
@@ -10,6 +12,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.utils.IdGenerator;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,7 +26,7 @@ public class UserDbStorage implements UserStorage {
     private static final String GET_ALL_USERS = "SELECT * FROM USERS";
     private static final String GET_USER_BY_ID = "SELECT * FROM USERS WHERE user_id = ?";
     private static final String CREATE_USER =
-            "INSERT INTO USERS (user_id, login, name, email, birthday) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO USERS (login, name, email, birthday) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER =
             "UPDATE USERS SET login = ?, name = ?, email = ?, birthday = ? WHERE user_id = ?";
     private static final String DELETE_USER = "DELETE FROM USERS WHERE user_id = ?";
@@ -53,14 +57,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        user.setId(IdGenerator.nextUserId());
 
-        jdbcTemplate.update(CREATE_USER, user.getId(), user.getLogin(), user.getName(), user.getEmail(),
-                user.getBirthday());
-
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement preparedStatement = con.prepareStatement(CREATE_USER, new String[]{"user_id"});
+            preparedStatement.setString(1, user.getLogin());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setDate(4, Date.valueOf(user.getBirthday()));
+            return preparedStatement;
+        }, keyHolder);
+        user.setId(keyHolder.getKey().longValue());
         return user;
     }
 
