@@ -1,34 +1,14 @@
--- Жанры
-INSERT INTO public.genres (name)
-VALUES ('Комедия');
+INSERT INTO mpa (mpa_id, title)
+VALUES (1, 'G'),
+       (2, 'PG'),
+       (3, 'PG-13'),
+       (4, 'R'),
+       (5, 'NC-17');
 
-INSERT INTO public.genres (name)
-VALUES ('Драма');
-
-INSERT INTO public.genres (name)
-VALUES ('Мультфильм');
-
-INSERT INTO public.genres (name)
-VALUES ('Триллер');
-
-INSERT INTO public.genres (name)
-VALUES ('Документальный');
-
-INSERT INTO public.genres (name)
-VALUES ('Боевик');
-
--- Возрастной рейтинг
-INSERT INTO public.mpa_ratings (name)
-VALUES ('G');
-
-INSERT INTO public.mpa_ratings (name)
-VALUES ('PG');
-
-INSERT INTO public.mpa_ratings (name)
-VALUES ('PG-13');
-
-INSERT INTO public.mpa_ratings (name)
-VALUES ('R');
-
-INSERT INTO public.mpa_ratings (name)
-VALUES ('NC-17');
+INSERT INTO genres (genre_id, title)
+VALUES (1, 'Комедия'),
+       (2, 'Драма'),
+       (3, 'Мультфильм'),
+       (4, 'Фантастика'),
+       (5, 'Детектив'),
+       (6, 'Триллер')

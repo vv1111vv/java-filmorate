@@ -1,68 +1,96 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.AbstractDataStorage;
-import ru.yandex.practicum.filmorate.dao.AbstractUserStorage;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.database.FriendshipStorage;
+import ru.yandex.practicum.filmorate.storage.database.UserDbStorage;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-public class UserService extends AbstractDataService<User> {
-    private final AbstractUserStorage userStorage;
+@Slf4j
+public class UserService {
 
-    public UserService(AbstractDataStorage<User> storage, AbstractUserStorage userStorage) {
-        super(storage);
+    private final FriendshipStorage friendshipStorage;
+    private final UserStorage userStorage;
+
+    @Autowired
+    public UserService(UserDbStorage userStorage, FriendshipStorage friends) {
+        this.friendshipStorage = friends;
         this.userStorage = userStorage;
     }
 
-    @Override
-    public Optional<User> create(User data) {
-        if (data.getName() == null || data.getName().isBlank()) {
-            data.setName(data.getLogin());
-        }
-
-        return super.create(data);
+    public User getById(Long id) throws UserDoesNotExistByIdException {
+        return userStorage.getById(id);
     }
 
-    public List<User> getFriends(int id) {
-        try {
-            return userStorage.getFriends(id);
-        } catch (DataIntegrityViolationException e) {
-            log.warn(e.getMessage());
-            throw new NotFoundException(String.format("Ошибка получения друзей для пользователя, id=%d", id));
-        }
+    public List<User> getUsers() {
+        return userStorage.getUsers();
     }
 
-    public void addFriend(int id, int friendId) {
-        try {
-            userStorage.addFriend(id, friendId);
-        } catch (DataIntegrityViolationException e) {
-            log.warn(e.getMessage());
-            throw new NotFoundException(String.format("Ошибка добавления друга, id=%d, friendId=%d", id, friendId));
-        }
+    public User createUser(User user) {
+        log.info("создан пользователь {}", user.getName());
+        return userStorage.createUser(user);
     }
 
-    public List<User> getCommonFriends(int id, int otherId) {
-        try {
-            return userStorage.getCommonFriends(id, otherId);
-        } catch (DataIntegrityViolationException e) {
-            log.warn(e.getMessage());
-            throw new NotFoundException(String.format("Ошибка получения общих друзей, id=%d, friendId=%d", id, otherId));
-        }
+    public User update(User user) {
+        log.info("обновлен пользователь {}", user.getName());
+        return userStorage.update(user);
     }
 
-    public void removeFriend(int id, int friendId) {
-        try {
-            userStorage.removeFriend(id, friendId);
-        } catch (DataIntegrityViolationException e) {
-            log.warn(e.getMessage());
-            throw new NotFoundException(String.format("Ошибка получения общих друзей, id=%d, friendId=%d", id, friendId));
+    public void addFriend(Long id, Long friendId) throws UserDoesNotExistByIdException {
+        if (id < 1 || friendId < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
         }
+        friendshipStorage.create(Friendship
+                .builder()
+                .user(getById(id))
+                .friend(getById(friendId))
+                .build());
+    }
+
+
+    public void deleteFriend(Long id, Long friendId) {
+        if (id < 1 || friendId < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
+        }
+        friendshipStorage.delete(Friendship
+                .builder()
+                .user(getById(id))
+                .friend(getById(friendId))
+                .build());
+    }
+
+    public List<User> getFriendsOf(Long id) {
+        if (id < 1) {
+            log.info("ошибка из-за неверного id");
+            throw new UserDoesNotExistByIdException("пользователь не может существовать с таким айди");
+        }
+        return friendshipStorage.getFriendsIds(getById(id).getId())
+                .stream()
+                .map(userStorage::getById)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<User> getCommonFriends(Long id, Long otherId) throws UserDoesNotExistByIdException {
+        Set<Long> common = new HashSet<>(friendshipStorage.getFriendsIds(getById(id).getId()));
+        common.retainAll(friendshipStorage.getFriendsIds(otherId));
+
+        return common
+                .stream()
+                .map(userStorage::getById)
+                .collect(Collectors.toList());
     }
 }
+

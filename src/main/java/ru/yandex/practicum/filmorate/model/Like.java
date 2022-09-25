@@ -1,15 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Data
-@RequiredArgsConstructor
+@Slf4j
+@Component
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Like {
-    @NonNull
-    private Film film;
-
-    @NonNull
-    private User user;
+    User user;
+    Film film;
 }

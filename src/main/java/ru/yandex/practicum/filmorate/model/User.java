@@ -1,44 +1,41 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import ru.yandex.practicum.filmorate.model.validators.LoginConstraint;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Data
-@SuperBuilder
-@RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class User extends AbstractData {
-    @Email(message = "Электронная почта не может быть пустой и должна содержать символ @")
-    private String email;
-
-    @LoginConstraint
+@Slf4j
+@Component
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+    private Long id;
+    @NotBlank(message = "поле *login* не может быть пустым")
+    @Pattern(regexp = "^[A-Za-z\\d]*$", message = "поле *login* не должно содержать пробелы и спец. символы")
     private String login;
-
     private String name;
-
-    @Past(message = "Дата рождения не может быть в будущем")
+    @NotBlank(message = "поле *email* не может быть пустым")
+    @Email(message = "неверный формат поля *email*")
+    private String email;
+    @Past(message = "поле *birthday* не может указывать на будущую дату")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
-    @JsonIgnore
-    private List<User> friends = new ArrayList<>();
-
-    public void addFriend(User friend) {
-        friends.add(friend);
-        friend.friends.add(this);
+    public User(String login, String name, String email, LocalDate birthday) {
+        this.login = login;
+        this.name = name;
+        this.email = email;
+        this.birthday = birthday;
     }
 
-    public void removeFriend(User friend) {
-        friends.remove(friend);
-        friend.friends.remove(this);
-    }
 }
