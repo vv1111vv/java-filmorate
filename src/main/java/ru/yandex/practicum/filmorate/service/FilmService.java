@@ -67,8 +67,7 @@ public class FilmService {
     }
 
     public Film update(Film newFilm) {
-        final Film oldFilm = getById(newFilm.getId());
-        if (oldFilm.equals(newFilm)) return newFilm;
+        getById(newFilm.getId());
         return filmStorage.update(newFilm);
     }
 
