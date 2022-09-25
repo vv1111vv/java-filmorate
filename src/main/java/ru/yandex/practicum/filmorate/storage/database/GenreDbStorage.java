@@ -36,9 +36,7 @@ public class GenreDbStorage implements GenreStorage {
     public void loadGenreToFilms(List<Film> films) {
         for (Film film : films) {
             List<Genre> genres = jdbcTemplate.query(GET_ALL_FILMS_GENRES, this::mapRowToGenre, film.getId());
-            if (genres.isEmpty()) {
-                film.setGenres(new HashSet<>());
-            } else {
+            if (!genres.isEmpty()) {
                 film.setGenres(new HashSet<>(genres));
             }
         }
