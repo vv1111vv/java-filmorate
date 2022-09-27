@@ -1,22 +1,19 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
-@Validated
 @RestController
-@Data
+@RequiredArgsConstructor
 public class UserController {
     private final UserService service;
 
@@ -26,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) throws UserDoesNotExistByIdException {
+    public ResponseEntity<User> getById(@PathVariable Long id) {
         return id < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
 

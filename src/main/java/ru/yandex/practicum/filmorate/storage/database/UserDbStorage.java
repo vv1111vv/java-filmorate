@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.utils.IdGenerator;
+
 
 import java.sql.Date;
 import java.sql.PreparedStatement;

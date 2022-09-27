@@ -1,26 +1,22 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Slf4j
 @Validated
 @RestController
-@Data
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService service;
 
@@ -61,11 +57,6 @@ public class FilmController {
     public ResponseEntity<Film> getById(@PathVariable Long id) {
         return id < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
                 new ResponseEntity<>(service.getById(id), HttpStatus.OK);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> exc(ConstraintViolationException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
 
