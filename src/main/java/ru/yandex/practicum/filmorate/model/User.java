@@ -1,28 +1,41 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 
-@Getter
-@Setter
+@Data
+@Slf4j
+@Component
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class User {
-    private long id; // целочисленный идентификатор — id;
-    @NotNull
-    @Email
-    private String email; //  электронная почта не может быть пустой и должна содержать символ @;
-    @NotBlank
-    private String login; // логин не может быть пустым и содержать пробелы;
-    private String name; //  имя для отображения может быть пустым — в таком случае будет использован логин;
-    @NotNull
-    @PastOrPresent
-    private LocalDate birthday; // дата рождения не может быть в будущем.
+    private Long id;
+    @NotBlank(message = "поле *login* не может быть пустым")
+    @Pattern(regexp = "^[A-Za-z\\d]*$", message = "поле *login* не должно содержать пробелы и спец. символы")
+    private String login;
+    private String name;
+    @NotBlank(message = "поле *email* не может быть пустым")
+    @Email(message = "неверный формат поля *email*")
+    private String email;
+    @Past(message = "поле *birthday* не может указывать на будущую дату")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
+
+    public User(String login, String name, String email, LocalDate birthday) {
+        this.login = login;
+        this.name = name;
+        this.email = email;
+        this.birthday = birthday;
+    }
+
 }
