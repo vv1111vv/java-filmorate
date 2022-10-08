@@ -1,45 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.utils.IsAfter;
+import lombok.*;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Set;
 
-@Slf4j
 @Data
-@Component
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
-    private Long id;
+    private long id;
     @NotBlank
     private String name;
-    @Size(max = 200, message = "допустимый размер описания: 200 символов")
     private String description;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @IsAfter(current = "1895-12-28", message = "до 28 декабря 1895 года фильмов не существовало")
     private LocalDate releaseDate;
-    @Min(0)
+    @Positive
     private int duration;
-    @NonNull
+    private Set<Director> directors;
     private MPARating mpa;
-    private Set<Genre> genres;
+    private Collection<Genre> genres;
 
 
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
 }

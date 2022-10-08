@@ -1,62 +1,77 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import java.util.Collection;
 import java.util.List;
 
-@Slf4j
-@Validated
 @RestController
-@RequiredArgsConstructor
+@RequestMapping("/films")
 public class FilmController {
-    private final FilmService service;
+    private final FilmService filmService;
 
-    @GetMapping("/films")
-    public List<Film> getFilms() {
-        return service.getAll();
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
-    @PostMapping("/films")
-    public Film createFilm(@Valid @RequestBody Film film) {
-        service.createFilm(film);
-        return film;
+    @GetMapping
+    public List<Film> findAll() {
+        return filmService.findAll();
     }
 
-    @PutMapping("/films")
-    public ResponseEntity<Film> update(@Valid @RequestBody Film film) {
-        return film.getId() < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
-                new ResponseEntity<>(service.update(film), HttpStatus.OK);
+    @GetMapping("/{id}")
+    public Film findById(@Valid @PathVariable("id") long id) throws ObjectNotFoundException {
+        return filmService.findById(id);
     }
 
-    @PutMapping("/films/{id}/like/{userId}")
-    public Film doLike(@PathVariable Long id, @PathVariable Long userId) {
-        service.saveLike(id, userId);
-        return service.getById(id);
+    @PostMapping
+    public Film create(@Valid @RequestBody Film film) throws ValidationException {
+        return filmService.create(film);
     }
 
-    @DeleteMapping("/films/{id}/like/{userId}")
-    public void unLike(@PathVariable Long id, @PathVariable Long userId) {
-        service.deleteLike(id, userId);
+    @PutMapping
+    public Film put(@Valid @RequestBody Film film) throws ValidationException, ObjectNotFoundException {
+        return filmService.put(film);
     }
 
-    @GetMapping("/films/popular")
-    public Collection<Film> getPopular(@Positive @RequestParam (value = "count", defaultValue = "10") final int count) {
-        return service.getPopularFilms(count);
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") long id, @PathVariable("userId") long userId) throws ObjectNotFoundException {
+        return filmService.addLike(id,userId);
     }
 
-    @GetMapping("/films/{id}")
-    public ResponseEntity<Film> getById(@PathVariable Long id) {
-        return id < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
-                new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable("filmId") long filmId) throws ObjectNotFoundException, ValidationException {
+        filmService.delete(filmId);
     }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable("id") long id, @PathVariable("userId") long userId) throws ObjectNotFoundException {
+        return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) throws ValidationException {
+        if (count <= 0) {
+            throw new ValidationException("Значение параметра count не может быть отрицательно!");
+        }
+        return filmService.getPopularFilms(count);
+    }
+
+    //films/director/{directorId}?sortBy=[year,likes]
+    @GetMapping("/director/{directorId}")
+    public List<Film> findFilmsDirectorSort(@PathVariable int directorId,
+                                            @RequestParam String sortBy) throws ObjectNotFoundException {
+        return filmService.findFilmsDirectorSort(directorId, sortBy);
+    }
+
+    //метод для тестов
+    public void deleteAll() {
+        filmService.deleteAll();
+    }
+
 }
 

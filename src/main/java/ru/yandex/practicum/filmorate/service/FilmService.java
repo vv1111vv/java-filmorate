@@ -1,79 +1,38 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.database.*;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPARating;
 
-import java.util.Collection;
 import java.util.List;
 
+public interface FilmService {
+    List<Film> findAll();
+    Film findById(long id) throws ObjectNotFoundException;
+    Film create(Film film) throws ValidationException;
+    Film put(Film film) throws ValidationException, ObjectNotFoundException;
+    Film addLike(long filmId, long userId) throws ObjectNotFoundException;
+    Film deleteLike(long filmId, long userId) throws ObjectNotFoundException;
+    List<Film> getPopularFilms(int count);
+    void deleteAll();
+    void delete(long id) throws ValidationException, ObjectNotFoundException;
+    MPARating findMpaById(long id) throws ObjectNotFoundException;
+    List<MPARating> findAllMpa();
+    Genre findGenreById(long id) throws ObjectNotFoundException;
+    List<Genre> findAllGenre();
 
-@Service
-@Slf4j
-@RequiredArgsConstructor
-public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserService userService;
-    private final LikeStorage likeStorage;
+    List<Film> findFilmsDirectorSort(int directorId, String sortBy);
 
-    private final GenreStorage genreStorage;
+    List<Director> findAllDirectors();
 
+    Director findDirectorById(int directorId);
 
+    Director addDirector(Director director);
 
-    public void saveLike(Long filmId, Long userId) {
+    Director updateDirector(Director director);
 
-        likeStorage.saveLike(Like
-                .builder()
-                .film(filmStorage.getById(filmId))
-                .user(userService.getById(userId))
-                .build());
-    }
-
-    public void deleteLike(Long filmId, Long userId) {
-
-        likeStorage.deleteLike(Like
-                .builder()
-                .film(filmStorage.getById(filmId))
-                .user(userService.getById(userId))
-                .build());
-    }
-
-    public Collection<Film> getPopularFilms(Integer count) {
-        List<Film> popularFilms = likeStorage.getPopularFilms(count != null ? count : 10);
-        genreStorage.loadGenreToFilms(popularFilms);
-        return popularFilms;
-    }
-
-    public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
-    }
-
-    public List<Film> getAll() {
-        List<Film> allFilms = filmStorage.getAllFilms();
-        genreStorage.loadGenreToFilms(allFilms);
-        return allFilms;
-    }
-
-    public Film getById(Long id) {
-        Film film = filmStorage.getById(id);
-        genreStorage.loadGenreToFilms(List.of(film));
-        return film;
-    }
-
-    public Film update(Film newFilm) {
-        getById(newFilm.getId());
-        return filmStorage.update(newFilm);
-    }
-
-    public void deleteFilm(Film film) {
-        filmStorage.deleteFilm(film);
-    }
-
+    void deleteDirector(int directorId);
 }
-

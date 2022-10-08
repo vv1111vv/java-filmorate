@@ -1,18 +1,34 @@
 package ru.yandex.practicum.filmorate.storage;
 
 
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPARating;
+
 import java.util.List;
 
 public interface FilmStorage {
 
-    Film createFilm(Film film);
+    List<Film> findAll();
+    Film findById(long id) throws ObjectNotFoundException;
+    Film create(Film film);
+    Film put(Film film) throws ObjectNotFoundException;
+    void deleteAll();
+    void delete(long filmId) throws ObjectNotFoundException;
+    boolean addLike(long filmId, long userId);
+    boolean deleteLike(long filmId, long userId);
+    List<Film> getPopularFilms(int count);
 
-    Film update(Film film);
+    MPARating findMpaById(long id) throws ObjectNotFoundException;
 
-    Film getById(Long id);
+    List<MPARating> findAllMpa();
 
-    List<Film> getAllFilms();
+    Genre findGenreById(long id) throws ObjectNotFoundException;
 
-    void deleteFilm(Film film);
+    List<Genre> findAllGenre();
+
+    List<Film> findFilmsOfDirectorSortByYear(int directorId);
+
+    List<Film> findFilmsOfDirectorSortByLikes(int directorId);
 }
