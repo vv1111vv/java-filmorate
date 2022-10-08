@@ -5,14 +5,12 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@Value
-@Builder
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class MPARating {
-    Integer id;
-
-    @JsonProperty("name")
-    @NotBlank String title;
-
+    private int id;
+    @NotBlank
+    private String name;
 }
 

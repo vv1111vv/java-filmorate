@@ -8,19 +8,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@EqualsAndHashCode(exclude = "title")
 public class Genre {
-    @JsonProperty("name")
-    @NotBlank String title;
-    private Integer id;
-
-    @JsonCreator
-    public static Genre forObject(@JsonProperty("id") int id, @JsonProperty String title) {
-        return new Genre(title, id);
-    }
+    private int id;
+    @NotBlank
+    private String name;
 }

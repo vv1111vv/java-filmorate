@@ -1,63 +1,76 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.UserDoesNotExistByIdException;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+
 import javax.validation.Valid;
 import java.util.List;
 
-@Slf4j
 @RestController
-@RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
-    private final UserService service;
 
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        return service.getUsers();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        return id < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    @GetMapping
+    public List<User> findAll() {
+        return userService.findAll();
     }
 
-    @PostMapping("/users")
-    public User createUser(@Valid @RequestBody User user) {
-        return service.createUser(user);
+    @GetMapping("/{id}")
+    public User findById(@PathVariable("id") long id) throws ObjectNotFoundException {
+        return userService.findById(id);
     }
 
-    @PutMapping("/users")
-    public ResponseEntity<User> update(@Valid @RequestBody User user) {
-        return user.getId() < 1 ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(service.update(user), HttpStatus.OK);
+    @PostMapping
+    public User create(@Valid @RequestBody User user) throws ValidationException {
+        return userService.create(user);
     }
 
-    @PutMapping("/users/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        service.addFriend(id, friendId);
+    @PutMapping
+    public User put(@Valid @RequestBody User user) throws ValidationException, ObjectNotFoundException {
+        return userService.put(user);
     }
 
-
-    @DeleteMapping("/users/{id}/friends/{friendId}")
-    public String deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        service.deleteFriend(id, friendId);
-        return "друг удален";
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable("userId") long userId) throws ObjectNotFoundException {
+        userService.delete(userId);
     }
 
-    @GetMapping("/users/{id}/friends")
-    public List<User> getFriendsOf(@PathVariable Long id) {
-        return service.getFriendsOf(id);
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId) throws ObjectNotFoundException {
+        return userService.addFriend(id, friendId);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) throws UserDoesNotExistByIdException {
-        return service.getCommonFriends(id, otherId);
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFromFriends(@PathVariable("id") long id, @PathVariable("friendId") long friendId) throws ObjectNotFoundException {
+        return userService.deleteFriend(id, friendId);
     }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable("id") long id) throws ObjectNotFoundException {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable("id") long id, @PathVariable("otherId") long otherId) throws ObjectNotFoundException {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    //метод для тестов
+    public void deleteAll() {
+        userService.deleteAll();
+    }
+
 }
 
 
