@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
@@ -22,4 +23,16 @@ public interface FilmService {
     List<MPARating> findAllMpa();
     Genre findGenreById(long id) throws ObjectNotFoundException;
     List<Genre> findAllGenre();
+
+    List<Film> findFilmsDirectorSort(int directorId, String sortBy);
+
+    List<Director> findAllDirectors();
+
+    Director findDirectorById(int directorId);
+
+    Director addDirector(Director director);
+
+    Director updateDirector(Director director);
+
+    void deleteDirector(int directorId);
 }

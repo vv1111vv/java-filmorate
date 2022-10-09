@@ -15,7 +15,6 @@ import java.util.List;
 public class FilmController {
     private final FilmService filmService;
 
-    @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
@@ -41,7 +40,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable("id") long id, @PathVariable("userId") long userId) throws ObjectNotFoundException {
+    public Film addLike(@PathVariable("id") long id, @PathVariable("userId") long userId) throws ObjectNotFoundException{
         return filmService.addLike(id,userId);
     }
 
@@ -61,6 +60,13 @@ public class FilmController {
             throw new ValidationException("Значение параметра count не может быть отрицательно!");
         }
         return filmService.getPopularFilms(count);
+    }
+
+    //films/director/{directorId}?sortBy=[year,likes]
+    @GetMapping("/director/{directorId}")
+    public List<Film> findFilmsDirectorSort(@PathVariable int directorId,
+                                            @RequestParam String sortBy) throws ObjectNotFoundException {
+        return filmService.findFilmsDirectorSort(directorId, sortBy);
     }
 
     //метод для тестов
