@@ -102,6 +102,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    public List<Film> findCommon(long userId, long friendId) {
+        return null;
+    }
 
     //ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ
     private String check(Film film) throws ValidationException {

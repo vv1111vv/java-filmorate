@@ -63,6 +63,11 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("/common")
+    public List<Film> findCommon(@RequestParam long userId, @RequestParam long friendId) {
+        return filmService.findCommon(userId, friendId);
+    }
+
     //метод для тестов
     public void deleteAll() {
         filmService.deleteAll();

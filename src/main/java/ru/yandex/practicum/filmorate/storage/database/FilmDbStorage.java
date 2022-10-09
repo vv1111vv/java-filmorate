@@ -231,6 +231,25 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public List<Film> findCommon(long userId, long friendId) {
+        final String sqlQueryCommon = "select FILMS.*, MPA.* " +
+                "from FILMS " +
+                "join MPA on MPA.MPA_ID = FILMS.MPA_ID " +
+                "where FILMS.FILM_ID " +
+                "in (select distinct FILM_ID from LIKES where USER_ID = ? and ?)";
+
+        List<Film> films = jdbcTemplate.query(sqlQueryCommon, FilmDbStorage::makeFilm, userId, friendId);
+        if (films.size() == 0) {
+            return Collections.emptyList();
+        }
+        for (Film film : films) {
+            setGenre(film);
+        }
+
+        return films;
+    }
+
     //МАППЕРЫ
     public static Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
         return Film.builder()

@@ -140,6 +140,11 @@ public class FilmServiceImpl implements FilmService {
         return filmStorage.findAllGenre();
     }
 
+    public List<Film> findCommon(long userId, long friendId) {
+        List<Film> common = filmStorage.findCommon(userId, friendId);
+        return common;
+    }
+
     private String check(Film film) throws ValidationException {
         String message = "";
         if (film == null) {

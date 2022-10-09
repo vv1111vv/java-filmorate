@@ -22,4 +22,5 @@ public interface FilmService {
     List<MPARating> findAllMpa();
     Genre findGenreById(long id) throws ObjectNotFoundException;
     List<Genre> findAllGenre();
+    List<Film> findCommon(long userId, long friendId);
 }

@@ -27,4 +27,6 @@ public interface FilmStorage {
     Genre findGenreById(long id) throws ObjectNotFoundException;
 
     List<Genre> findAllGenre();
+
+    List<Film> findCommon(long idUser, long idFriend);
 }
