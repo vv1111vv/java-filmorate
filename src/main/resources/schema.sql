@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS users, films, friends, likes, film_genres, MPA,
-    genres ;
+    genres, DIRECTORS, FILM_DIRECTORS, REVIEWS, FEED cascade;
 
 CREATE TABLE IF NOT EXISTS USERS (
                                      user_id INT PRIMARY KEY AUTO_INCREMENT,
