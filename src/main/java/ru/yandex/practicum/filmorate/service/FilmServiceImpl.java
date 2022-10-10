@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.validation.DirectorValidators;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -201,5 +202,10 @@ public class FilmServiceImpl implements FilmService {
             message = DURATION_IS_POSITIVE;
         }
         return message;
+    }
+
+    @Override
+    public List<Film> search(String title, List<String> search) {
+        return filmStorage.getSearch(title, search);
     }
 }

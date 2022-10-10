@@ -111,23 +111,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    @Override
+    public List<Film> getSearch(String query, List<String> search) {
+        return null;
+    }
 
-//    //ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ
-//    private String check(Film film) throws ValidationException {
-//        String message = "";
-//        if (film == null) {
-//            message = "Данные о фильме не заполнены.";
-//        } else if (film.getName() == null || film.getName().isBlank()) {
-//            message = "Название фильма не может быть пустым.";
-//        } else if (film.getDescription().length() > 200) {
-//            message = "Превышена максимальная длина описания — 200 символов";
-//        } else if (film.getReleaseDate().isBefore(DATE_BORN_MOVIE)) {
-//            message = "Дата релиза не может быть раньше даты 28.12.1895";
-//        } else if (film.getDuration() <= 0) {
-//            message = "Продолжительность фильма должна быть больше 0";
-//        }
-//        return message;
-//    }
 
     private long getNextId() {
         return ++lastFilmId;
