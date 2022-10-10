@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -112,26 +114,42 @@ public class ReviewService {
      * @param review объект класса Review.
      * @throws ObjectNotFoundException исключение.
      */
-    private void validationReview(Review review) throws ObjectNotFoundException {
-        if (review.getFilmId() != null) {
-            if (filmStorage.findById(review.getFilmId()) == null) {
-                log.debug("Фильм не найден");
-                throw new ValidationException("Фильм не найден");
-            }
-        } else {
-            throw new ValidationException("У отзыва должно быть заполнено поле filmId");
-        }
-        if (review.getUserId() != null) {
-            if (userStorage.findById(review.getUserId()) == null) {
-                log.debug("Пользователь не найден");
-                throw new ValidationException("Пользователь не найден");
-            }
-        } else {
-            throw new ValidationException("У отзыва должно быть заполнено поле userId");
-        }
-        if (review.getIsPositive() == null) {
-            log.debug("У отзыва должно быть заполнено поле isPositive");
-            throw new ValidationException("У отзыва должно быть заполнено поле isPositive");
+//    private void validationReview(Review review) throws ObjectNotFoundException {
+//        if (review.getFilmId() != null) {
+//            if (filmStorage.findById(review.getFilmId()) == null) {
+//                log.debug("Фильм не найден");
+//                throw new ValidationException("Фильм не найден");
+//            }
+//        } else {
+//            throw new ValidationException("У отзыва должно быть заполнено поле filmId");
+//        }
+//        if (review.getUserId() != null) {
+//            if (userStorage.findById(review.getUserId()) == null) {
+//                log.debug("Пользователь не найден");
+//                throw new ValidationException("Пользователь не найден");
+//            }
+//        } else {
+//            throw new ValidationException("У отзыва должно быть заполнено поле userId");
+//        }
+//        if (review.getIsPositive() == null) {
+//            log.debug("У отзыва должно быть заполнено поле isPositive");
+//            throw new ValidationException("У отзыва должно быть заполнено поле isPositive");
+//        }
+//    }
+
+    private void validationReview(Review review) {
+        if (review.getContent().isEmpty() || review.getContent().isBlank()) {
+            throw new ValidationException("Содержание не должно быть пустым.");
+        } else if (review.getUserId() == 0) {
+            throw new ValidationException("Идентификатор пользователя не должен быть пустым или равен 0.");
+        } else if (review.getUserId() < 0) {
+            throw new UserNotFoundException("Идентификатор пользователя должен быть больше 0.");
+        } else if (review.getFilmId() == 0) {
+            throw new ValidationException("Идентификатор фильма не должен быть пустым или равен 0.");
+        } else if (review.getFilmId() < 0) {
+            throw new FilmNotFoundException("Идентификатор фильма должен быть больше 0.");
+        } else if (review.getIsPositive() == null) {
+            throw new ValidationException("Отзыв должен быть положительным или отрицательным.");
         }
     }
 }
