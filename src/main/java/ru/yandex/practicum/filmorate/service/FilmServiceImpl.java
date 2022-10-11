@@ -16,6 +16,7 @@ import java.time.Month;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -233,6 +234,23 @@ public class FilmServiceImpl implements FilmService {
             message = DURATION_IS_POSITIVE;
         }
         return message;
+    }
+
+    public List <Film> findCommonFilms(long userId, long friendId) throws ObjectNotFoundException {
+        User user = userStorage.findById(userId);
+        User otherUser = userStorage.findById(friendId);
+        if (user == null) {
+            log.debug(String.format("Ошибка при попытке найти общих друзей. Пользователь с id %d не найден", userId));
+            throw new ObjectNotFoundException(String.format("Пользователь с id %d не найден", userId));
+        }
+        if (otherUser == null) {
+            log.debug(String.format("Ошибка при попытке найти общих друзей. Пользователь с id %d не найден", friendId));
+            throw new ObjectNotFoundException(String.format("Пользователь с id %d не найден", friendId));
+        }
+        return (filmStorage.getUserFilms(userId)
+                .stream()
+                .filter(filmStorage.getUserFilms(friendId)::contains)
+                .collect(Collectors.toList()));
     }
 }
 

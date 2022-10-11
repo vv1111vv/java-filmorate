@@ -37,4 +37,6 @@ public interface FilmService {
     Director updateDirector(Director director);
 
     void deleteDirector(int directorId);
+
+    List <Film> findCommonFilms(long userId, long friendId) throws ObjectNotFoundException;
 }

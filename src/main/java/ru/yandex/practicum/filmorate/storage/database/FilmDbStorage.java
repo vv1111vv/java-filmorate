@@ -394,4 +394,11 @@ public class FilmDbStorage implements FilmStorage {
     public static MPARating makeMpa(ResultSet rs, int rowNum) throws SQLException {
         return new MPARating(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"));
     }
+
+    public List<Film> getUserFilms(long userId) {
+        List<Film> userFilms = jdbcTemplate.query("SELECT * FROM FILMS LEFT JOIN MPA M ON FILMS.MPA_ID = M.MPA_ID " +
+                        "WHERE FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)",
+                this::makeFilm, userId);
+        return userFilms;
+    }
 }
