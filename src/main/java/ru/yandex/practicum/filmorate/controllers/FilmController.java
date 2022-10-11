@@ -73,5 +73,10 @@ public class FilmController {
         filmService.deleteAll();
     }
 
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam String query,
+                             @RequestParam List<String> by) {
+        return filmService.search(query, by);
+    }
 }
 

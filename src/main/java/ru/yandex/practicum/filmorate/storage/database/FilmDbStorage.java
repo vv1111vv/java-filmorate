@@ -17,6 +17,7 @@ import java.sql.*;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -324,5 +325,43 @@ public class FilmDbStorage implements FilmStorage {
 
     public static MPARating makeMpa(ResultSet rs, int rowNum) throws SQLException {
         return new MPARating(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"));
+    }
+
+    @Override
+    public List<Film> getSearch(String title, List<String> search) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String ByDirector =
+            "SELECT f.FILM_ID " +
+            "FROM FILMS AS f " +
+            "JOIN FILM_DIRECTORS AS fd ON f.FILM_ID = fd.FILM_ID " +
+            "JOIN DIRECTORS AS dir ON dir.ID = fd.ID " +
+            "WHERE UPPER(dir.DIRECTOR_NAME) LIKE UPPER('%" + title + "%')";
+
+        String ByFilm =
+            "SELECT f.FILM_ID " +
+            "FROM FILMS AS f " +
+            "WHERE UPPER(f.FILM_NAME) LIKE UPPER('%" + title + "%')";
+
+        for (int i = 0; i < search.size(); i++) {
+            String name = search.get(i);
+            if (name.equals("director")) stringBuilder.append(ByDirector);
+            if (name.equals("title")) stringBuilder.append(ByFilm);
+            if (!(i == search.size() - 1)) stringBuilder.append(" UNION ");
+        }
+
+        String sortedResult =
+                "SELECT found.FILM_ID " +
+                        "FROM " +
+                        "("+ stringBuilder +") AS found " +
+                        "LEFT OUTER JOIN LIKES AS l ON l.FILM_ID = found.FILM_ID " +
+                        "GROUP BY found.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+
+        return jdbcTemplate.queryForList(sortedResult, Long.class)
+                .stream()
+                .map(this::findById)
+                .collect(Collectors.toList());
+
     }
 }

@@ -35,4 +35,6 @@ public interface FilmService {
     Director updateDirector(Director director);
 
     void deleteDirector(int directorId);
+
+    List<Film> search(String title, List<String> search);
 }
