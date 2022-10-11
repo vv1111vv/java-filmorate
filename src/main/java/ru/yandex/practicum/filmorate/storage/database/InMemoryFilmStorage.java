@@ -102,6 +102,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    @Override
+    public List<Film> findFilmsOfDirectorSortByYear(int directorId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> findFilmsOfDirectorSortByLikes(int directorId) {
+        return null;
+    }
+
 
     //ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ
     private String check(Film film) throws ValidationException {

@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 @Data
 @Builder
@@ -22,7 +23,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
+    private Set<Director> directors;
     private MPARating mpa;
-    private List<Genre> genres;
+    private Collection<Genre> genres;
+
 
 }

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -27,4 +26,8 @@ public interface FilmStorage {
     Genre findGenreById(long id) throws ObjectNotFoundException;
 
     List<Genre> findAllGenre();
+
+    List<Film> findFilmsOfDirectorSortByYear(int directorId);
+
+    List<Film> findFilmsOfDirectorSortByLikes(int directorId);
 }
