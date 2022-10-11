@@ -18,7 +18,7 @@ public interface FilmStorage {
     void delete(long filmId) throws ObjectNotFoundException;
     boolean addLike(long filmId, long userId);
     boolean deleteLike(long filmId, long userId);
-    List<Film> getPopularFilms(int count);
+    List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
 
     MPARating findMpaById(long id) throws ObjectNotFoundException;
 

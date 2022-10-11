@@ -16,7 +16,7 @@ public interface FilmService {
     Film put(Film film) throws ValidationException, ObjectNotFoundException;
     Film addLike(long filmId, long userId) throws ObjectNotFoundException;
     Film deleteLike(long filmId, long userId) throws ObjectNotFoundException;
-    List<Film> getPopularFilms(int count);
+    List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
     void deleteAll();
     void delete(long id) throws ValidationException, ObjectNotFoundException;
     MPARating findMpaById(long id) throws ObjectNotFoundException;

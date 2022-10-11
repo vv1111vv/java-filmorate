@@ -7,7 +7,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
@@ -54,14 +57,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) throws ValidationException {
-        if (count <= 0) {
-            throw new ValidationException("Значение параметра count не может быть отрицательно!");
-        }
-        return filmService.getPopularFilms(count);
+    public Collection<Film> getPopular(@Positive @RequestParam (value = "count", defaultValue = "10") final int count,
+                                       @RequestParam(required = false) Integer genreId,
+                                       @RequestParam(required = false) Integer year) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
-
-    //films/director/{directorId}?sortBy=[year,likes]
     @GetMapping("/director/{directorId}")
     public List<Film> findFilmsDirectorSort(@PathVariable int directorId,
                                             @RequestParam String sortBy) throws ObjectNotFoundException {
