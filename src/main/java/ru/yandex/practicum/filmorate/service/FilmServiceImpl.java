@@ -13,7 +13,9 @@ import ru.yandex.practicum.filmorate.storage.database.DirectorDao;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -120,8 +122,21 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+    public List<Film> getPopularFilms(int count, Map<String, String> params) {
+        return filmStorage.getPopularFilms(count, params);
+    }
+
+    @Override
+    public List<Film> search(String query, List<String> searchOptions) {
+        if (searchOptions.size() > 2) {
+            throw new ValidationException("Превышено количество задаваемых параметров поиска!");
+        }
+
+        if (searchOptions.size() > new HashSet<>(searchOptions).size()) {
+            throw new ValidationException("В строке запроса есть повторяющиеся опции поиска!");
+        }
+
+        return filmStorage.search(query, searchOptions);
     }
 
     @Override

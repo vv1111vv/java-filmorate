@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.util.List;
+import java.util.Map;
 
 public interface FilmStorage {
 
@@ -17,7 +18,8 @@ public interface FilmStorage {
     void delete(long filmId) throws ObjectNotFoundException;
     boolean addLike(long filmId, long userId);
     boolean deleteLike(long filmId, long userId);
-    List<Film> getPopularFilms(int count);
+    List<Film> getPopularFilms(int count, Map<String, String> params);
+    List<Film> search(String query, List<String> searchOptions);
 
     MPARating findMpaById(long id) throws ObjectNotFoundException;
 

@@ -7,17 +7,17 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -181,20 +181,88 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        final String sqlQuery = "select F.*, M.MPA_NAME, COUNT(L.USER_ID)from FILMS F "
-                + "left join LIKES L on F.film_id = L.film_id "
-                + "left join MPA M on F.MPA_ID = M.MPA_ID "
-                + "group by F.film_id, film_name, description, duration, f.mpa_id, m.mpa_id, m.mpa_name, release_date "
-                + "order by COUNT(L.USER_ID) desc LIMIT ?";
-        final List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm, count);
-        if (films.size() == 0) {
-            return Collections.emptyList();
+    public List<Film> getPopularFilms(int count, Map<String, String> params) {
+        StringBuilder sb = new StringBuilder();
+        List<String> conditions = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+
+        if (!(params.containsKey("count") && params.keySet().size() == 1) && params.keySet().size() > 0) {
+            sb.append("WHERE ");
         }
-        for (Film film : films) {
-            setGenre(film);
+
+        if (params.containsKey("genreId")) {
+            if (Integer.parseInt(params.get("genreId")) < 1)
+                throw new ValidationException("Указан отрицательный ID жанра!");
+            conditions.add("fg.GENRE_ID = ? ");
+            values.add(params.get("genreId"));
         }
-        return films;
+
+        if (params.containsKey("year")) {
+            conditions.add("EXTRACT(YEAR FROM f.RELEASE_DATE) = ? ");
+            values.add(params.get("year"));
+        }
+
+        for (int i = 0; i < conditions.size(); i++) {
+            sb.append(conditions.get(i));
+            if (i != conditions.size() - 1) {
+                sb.append("AND ");
+            }
+        }
+        values.add(String.valueOf(count));
+
+        final String sqlQuery =
+                "SELECT " +
+                        "f.*, " +
+                        "mpa.MPA_NAME, " +
+                        "COUNT(L.USER_ID)" +
+                        "FROM FILMS AS f " +
+                        "LEFT JOIN LIKES AS l ON f.film_id = l.film_id " +
+                        "LEFT JOIN MPA AS mpa ON F.MPA_ID = mpa.MPA_ID " +
+                        "LEFT JOIN FILM_GENRES AS fg ON f.FILM_ID = fg.FILM_ID " +
+                        (params.size() > 0 ? sb.toString() : "") +
+                        " GROUP BY F.film_id, film_name, description, duration, f.mpa_id, mpa.mpa_id, mpa.mpa_name, release_date " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "LIMIT ?";
+
+        return jdbcTemplate.query(sqlQuery, this::makeFilm, values.toArray(new Object[0]));
+    }
+
+    @Override
+    public List<Film> search(String query, List<String> searchOptions) {
+        StringBuilder sb = new StringBuilder();
+        String searchByDirector =
+                "SELECT f.FILM_ID " +
+                        "FROM FILMS AS f " +
+                        "JOIN FILM_DIRECTORS AS fd ON f.FILM_ID = FD.FILM_ID " +
+                        "JOIN DIRECTORS AS dir ON dir.ID = FD.ID " +
+                        "WHERE UPPER(dir.DIRECTOR_NAME) LIKE UPPER('%" + query + "%')";
+
+        String searchByFilmName =
+                "SELECT f.FILM_ID " +
+                        "FROM FILMS AS f " +
+                        "WHERE UPPER(f.FILM_NAME) LIKE UPPER('%" + query + "%')";
+
+        for (int i = 0; i < searchOptions.size(); i++) {
+            String s = searchOptions.get(i);
+            if (s.equals("director")) sb.append(searchByDirector);
+            if (s.equals("title")) sb.append(searchByFilmName);
+            if (!(i == searchOptions.size() - 1)) sb.append(" UNION ");
+
+        }
+
+        String sortedResult =
+                "SELECT found.FILM_ID " +
+                        "FROM " +
+                        "("+ sb +") AS found " +
+                        "LEFT OUTER JOIN LIKES AS l ON l.FILM_ID = found.FILM_ID " +
+                        "GROUP BY found.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+
+        return jdbcTemplate.queryForList(sortedResult, Long.class)
+                .stream()
+                .map(this::findById)
+                .collect(Collectors.toList());
+
     }
 
     @Override
