@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.database;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -53,6 +52,18 @@ public class FilmDbStorage implements FilmStorage {
             log.debug("Не найден фильм с ID " + id);
             throw new ObjectNotFoundException("Фильм не найден!");
         }
+    }
+
+    @Override
+    public Collection<Film> findFilms(List<Integer> ids) {
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        String filmIds = ids.stream().map(String::valueOf)
+                .collect(Collectors.joining(","));
+        String sql = "select * from films " +
+                "where FILM_ID in (" + filmIds + ")";
+        return jdbcTemplate.query(sql, this::makeFilm);
     }
 
     @Override
@@ -312,7 +323,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::makeFilm, directorId);
     }
 
-    private List<Genre> getGenresByFilmId(Long filmId) {
+    public List<Genre> getGenresByFilmId(Long filmId) {
         final String sqlQueryGenre = "SELECT G.GENRE_ID, G.GENRE_NAME FROM FILM_GENRES FG " +
                 "LEFT JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID " +
                 "WHERE FG.FILM_ID = ?";
@@ -358,7 +369,28 @@ public class FilmDbStorage implements FilmStorage {
         return userFilms;
     }
 
+    @Override
+    public Map<Integer, List<Integer>> getAllFilmsLikes() {
+        String sql = "select * from likes";
+        Map<Integer, List<Integer>> likes = new HashMap<>();
 
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql);
+
+        while (rows.next()) {
+            int userId = rows.getInt("user_id");
+            int filmId = rows.getInt("film_id");
+
+            if (!likes.containsKey(userId)) {
+                likes.put(userId, new ArrayList<>(List.of(filmId)));
+            }
+            List<Integer> newValue = likes.get(userId);
+            newValue.add(filmId); //Add new like
+
+            likes.put(userId, newValue);
+        }
+
+        return likes;
+    }
 
 
 

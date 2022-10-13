@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -14,7 +15,12 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static ru.yandex.practicum.filmorate.utils.CollaborativeFiltering.recommendItems;
 
 @Slf4j
 @Service
@@ -173,5 +179,18 @@ public class UserServiceImpl implements UserService {
             user.setName(user.getLogin());
         }
         return message;
+    }
+
+    public Collection<Film> getRecommendations(Integer userId) throws UserNotFoundException {
+        UserValidators.isExists(userStorage, userId, String.format(
+                "Пользователь с id = %s не существует.", userId), log);
+
+        Map<Integer,List<Integer>> filmLikes = filmStorage.getAllFilmsLikes();
+        List<Integer> filmIds = recommendItems(filmLikes, userId);
+
+        if (filmIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return filmStorage.findFilms(filmIds);
     }
 }

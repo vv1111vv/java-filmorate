@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,9 @@ public interface FilmStorage {
 
     List<Film> findAll();
     Film findById(long id) throws ObjectNotFoundException;
+
+    Collection<Film> findFilms(List<Integer> ids);
+
     Film create(Film film);
     Film put(Film film) throws ObjectNotFoundException;
     void deleteAll();
@@ -35,4 +39,6 @@ public interface FilmStorage {
     List<Film> findFilmsOfDirectorSortByLikes(int directorId);
 
     List<Film> getUserFilms(long userId);
+
+    Map<Integer, List<Integer>> getAllFilmsLikes();
 }

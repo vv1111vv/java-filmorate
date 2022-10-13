@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -37,6 +34,11 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ObjectNotFoundException("Фильм не найден!");
         }
         return films.get(id);
+    }
+
+    @Override
+    public Collection<Film> findFilms(List<Integer> ids) {
+        return null;
     }
 
     @Override
@@ -76,6 +78,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public boolean deleteLike(long filmId, long userId) {
         return false;
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getAllFilmsLikes() {
+        return null;
     }
 
     @Override

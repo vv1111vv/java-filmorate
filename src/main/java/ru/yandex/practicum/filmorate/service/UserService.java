@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserService {
@@ -17,4 +20,5 @@ public interface UserService {
     User deleteFriend(Long userId, Long friendId) throws ObjectNotFoundException;
     List<User> getFriends(Long userId) throws ObjectNotFoundException;
     List<User> getCommonFriends(Long userId, Long otherId) throws ObjectNotFoundException;
+    Collection<Film> getRecommendations(Integer userId) throws UserNotFoundException;
 }
