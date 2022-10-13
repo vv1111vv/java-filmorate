@@ -82,6 +82,11 @@ public class InMemoryUserStorage implements UserStorage {
         return null;
     }
 
+    @Override
+    public List<Long> getUsersFilms(Long userId) {
+        return null;
+    }
+
 
     //ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ
 

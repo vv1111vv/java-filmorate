@@ -16,4 +16,6 @@ public interface UserStorage {
     boolean deleteFriend(Long userId, Long friendId);
     List<User> getFriends(Long userId);
     List<User> getCommonFriends(Long userId, Long otherId);
+
+    List<Long> getUsersFilms(Long userId);
 }

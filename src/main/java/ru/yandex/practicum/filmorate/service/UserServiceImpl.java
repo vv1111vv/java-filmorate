@@ -15,12 +15,8 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static ru.yandex.practicum.filmorate.utils.CollaborativeFiltering.recommendItems;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -181,16 +177,40 @@ public class UserServiceImpl implements UserService {
         return message;
     }
 
-    public Collection<Film> getRecommendations(Integer userId) throws UserNotFoundException {
-        UserValidators.isExists(userStorage, userId, String.format(
-                "Пользователь с id = %s не существует.", userId), log);
+    public Collection<Film> getRecommendations(long userId) throws UserNotFoundException {
 
-        Map<Integer,List<Integer>> filmLikes = filmStorage.getAllFilmsLikes();
-        List<Integer> filmIds = recommendItems(filmLikes, userId);
+        Map<Long, List<Long>> filmsOfUsers = new HashMap<>();
 
-        if (filmIds.isEmpty()) {
-            return Collections.emptyList();
+        List<User> users = userStorage.findAll();
+
+        for (User user : users) {
+            filmsOfUsers.put(user.getId(), userStorage.getUsersFilms(user.getId()));
         }
-        return filmStorage.findFilms(filmIds);
+
+        long maxMatches = 0;
+        Set<Long> similarity = new HashSet<>();
+        for (Long id : filmsOfUsers.keySet()) {
+            if (id == userId) continue;
+
+            long numberOfMatches = filmsOfUsers.get(id).stream()
+                    .filter(filmId -> filmsOfUsers.get(userId).contains(filmId)).count();
+
+            if (numberOfMatches == maxMatches & numberOfMatches != 0) {
+                similarity.add(id);
+            }
+
+            if (numberOfMatches > maxMatches) {
+                maxMatches = numberOfMatches;
+                similarity = new HashSet<>();
+                similarity.add(id);
+            }
+        }
+
+        if (maxMatches == 0) return new HashSet<>();
+        else return similarity.stream().flatMap(idUser -> userStorage.getUsersFilms(idUser).stream())
+                .filter(filmId -> !filmsOfUsers.get(userId).contains(filmId))
+                .map(filmId -> filmStorage.findById(filmId))
+                .collect(Collectors.toSet());
     }
+
 }

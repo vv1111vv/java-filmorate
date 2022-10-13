@@ -152,5 +152,11 @@ public class UserDbStorage implements UserStorage {
         return friends;
     }
 
+    @Override
+    public List<Long> getUsersFilms(Long userId) {
+        String sql = "SELECT film_id FROM LIKES WHERE user_id = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), userId);
+    }
+
 
 }

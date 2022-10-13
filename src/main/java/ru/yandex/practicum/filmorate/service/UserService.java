@@ -20,5 +20,5 @@ public interface UserService {
     User deleteFriend(Long userId, Long friendId) throws ObjectNotFoundException;
     List<User> getFriends(Long userId) throws ObjectNotFoundException;
     List<User> getCommonFriends(Long userId, Long otherId) throws ObjectNotFoundException;
-    Collection<Film> getRecommendations(Integer userId) throws UserNotFoundException;
+    Collection<Film> getRecommendations(long userId) throws UserNotFoundException;
 }

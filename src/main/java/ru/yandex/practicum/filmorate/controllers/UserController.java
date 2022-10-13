@@ -78,12 +78,6 @@ public class UserController {
         return feedService.getFeed(id);
     }
 
-//    @GetMapping("/{id}/recommendations")
-//    public List<Film> getRecommendationsByUser(@PathVariable long id
-//            , @RequestParam(name = "count", defaultValue = "10") int count){
-//        return userService.getRecommendationsByUser(id, count);
-//    }
-
     @GetMapping("/{id}/recommendations")
     public Collection<Film> getRecommendations(@PathVariable Integer id)
             throws UserNotFoundException {
@@ -96,6 +90,8 @@ public class UserController {
     }
 
 }
+
+
 
 
 
