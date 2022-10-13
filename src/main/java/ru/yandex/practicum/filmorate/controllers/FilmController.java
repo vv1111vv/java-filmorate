@@ -80,14 +80,13 @@ public class FilmController {
         return filmService.findFilmsDirectorSort(directorId, sortBy);
     }
 
-    @GetMapping("/common")
-    public List <Film> findCommonFilms(@RequestParam long userId, @RequestParam long friendId) throws ObjectNotFoundException {
-        return filmService.findCommonFilms(userId, friendId);
-    }
-
     //метод для тестов
     public void deleteAll() {
         filmService.deleteAll();
     }
 
+    @GetMapping("/common")
+    public List <Film> findCommonFilms(@RequestParam long userId, @RequestParam long friendId) throws ObjectNotFoundException {
+        return filmService.findCommonFilms(userId, friendId);
+    }
 }

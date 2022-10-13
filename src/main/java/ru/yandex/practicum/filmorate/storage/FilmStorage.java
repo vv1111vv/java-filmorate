@@ -19,6 +19,7 @@ public interface FilmStorage {
     boolean addLike(long filmId, long userId);
     boolean deleteLike(long filmId, long userId);
     List<Film> getPopularFilms(int count, Map<String, String> params);
+
     List<Film> search(String query, List<String> searchOptions);
 
     MPARating findMpaById(long id) throws ObjectNotFoundException;

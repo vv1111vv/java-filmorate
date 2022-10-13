@@ -118,7 +118,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
-
     //ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ
     private String check(Film film) throws ValidationException {
         String message = "";
@@ -139,6 +138,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long getNextId() {
         return ++lastFilmId;
     }
+
 
     @Override
     public List<Film> getUserFilms(long userId) {

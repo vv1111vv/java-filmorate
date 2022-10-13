@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS REVIEWS (
                                        is_positive BOOLEAN NOT NULL,
                                        user_id INT REFERENCES USERS(user_id) ON DELETE CASCADE,
                                        film_id INT REFERENCES FILMS(film_id) ON DELETE CASCADE,
-                                       useful INT
+                                       useful INT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS FEED (
                                     event_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -72,4 +72,9 @@ CREATE TABLE IF NOT EXISTS FEED (
                                     operation VARCHAR,
                                     entity_id INT,
                                     timestamp BIGINT
+);
+CREATE TABLE IF NOT EXISTS REVIEWS_USERS (
+                                             review_id INT REFERENCES REVIEWS(review_id) ON DELETE CASCADE,
+                                             user_id   INT REFERENCES USERS(user_id) ON DELETE CASCADE,
+                                             is_like   BOOLEAN NOT NULL
 );

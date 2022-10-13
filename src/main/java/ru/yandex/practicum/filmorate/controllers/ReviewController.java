@@ -53,6 +53,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}/like/{userId}")
     public void addLikeReview(@PathVariable int reviewId, @PathVariable Long userId) throws ObjectNotFoundException {
         reviewService.addLikeReview(reviewId, userId);
+        log.info("Для отзыва с ID: {} добавлен лайк от пользователя c ID: {}", reviewId, userId);
     }
 
     @PutMapping("/{reviewId}/dislike/{userId}")

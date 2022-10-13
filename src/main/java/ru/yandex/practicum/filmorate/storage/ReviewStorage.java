@@ -19,5 +19,11 @@ public interface ReviewStorage {
 
     List<Review> getReviewsForFilm(Long filmId, int count);
 
-    void updateLike(int useful, Integer reviewId);
+    void addLike(Integer reviewId, Long userId);
+
+    void addDislike(Integer reviewId, Long userId);
+
+    void removeLike(Integer reviewId, Long userId);
+
+    void removeDislike(Integer reviewId, Long userId);
 }

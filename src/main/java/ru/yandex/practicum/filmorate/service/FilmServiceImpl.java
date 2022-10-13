@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
+
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FeedStorage feedStorage;
@@ -32,7 +34,7 @@ public class FilmServiceImpl implements FilmService {
     private static final String DURATION_IS_POSITIVE = "Продолжительность фильма должна быть больше 0";
     private static final String EARLY_RELEASE_DATE = "Дата релиза не может быть раньше даты 28.12.1895";
 
-    public FilmServiceImpl(FilmStorage filmStorage, UserStorage userStorage, DirectorDao directorStorage, FeedStorage feedStorage) {
+    public FilmServiceImpl(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserStorage userStorage, DirectorDao directorStorage, FeedStorage feedStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.directorStorage = directorStorage;

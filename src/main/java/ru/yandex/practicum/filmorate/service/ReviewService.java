@@ -88,23 +88,19 @@ public class ReviewService {
     }
 
     public void addLikeReview(Integer reviewId, Long userId) throws ObjectNotFoundException {
-        validationReview(getById(reviewId));
-        int useful = reviewStorage.getById(reviewId).getUseful();
-        reviewStorage.updateLike(++useful, reviewId);
+        reviewStorage.addLike(reviewId, userId);
     }
 
     public void addDislikeReview(Integer reviewId, Long userId) throws ObjectNotFoundException {
-        validationReview(getById(reviewId));
-        int useful = reviewStorage.getById(reviewId).getUseful();
-        reviewStorage.updateLike(--useful, reviewId);
+        reviewStorage.addDislike(reviewId, userId);
     }
 
     public void deleteLikeFromReview(int reviewId, Long userId) throws ObjectNotFoundException {
-        addDislikeReview(reviewId, userId);
+        reviewStorage.removeLike(reviewId, userId);
     }
 
     public void deleteDislikeFromReview(int reviewId, Long userId) throws ObjectNotFoundException {
-        addLikeReview(reviewId, userId);
+        reviewStorage.removeDislike(reviewId, userId);
     }
 
     /**
